@@ -14,6 +14,7 @@ public class mlab {
         try (LexicalAnalysis l = new LexicalAnalysis(args[0])) {
             SyntaticalAnalysis s = new SyntaticalAnalysis(l);
             CommandBlock cb = s.start();
+        	System.out.println("-----------------");
             cb.execute();
             /**Lexeme lex;
             while (checkType((lex = l.nextToken()).type)) {
@@ -32,6 +33,7 @@ public class mlab {
             }**/
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -16,12 +16,12 @@ public class RandMatrixValue  extends MatrixValue{
 
     @Override
     public Matrix value() {
-        Value<?> v1 = (rows instanceof Variable ? (Variable) rows.value() : rows);
-        Value<?> v2 = (cols instanceof Variable ? (Variable) cols.value() : cols);
+        Value<?> v1 = (rows instanceof Variable ? ((Variable) rows).value() : rows);
+        Value<?> v2 = (cols instanceof Variable ? ((Variable) cols).value() : cols);
 
-        if (v1 instanceof ConstIntValue && v2 instanceof ConstIntValue){
-            int r = ((ConstIntValue)v1).value();
-            int c = ((ConstIntValue)v2).value();
+        if (v1 instanceof IntValue && v2 instanceof IntValue){
+            int r = ((IntValue)v1).value();
+            int c = ((IntValue)v2).value();
             return Matrix.rand(r, c);
         }else{
             return null;
