@@ -24,14 +24,22 @@ public class Matrix {
     }
 
     public void show(){
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                System.out.print(matrix[i][j] + " ");
-            }
-            System.out.println();
-        }
+    	System.out.println(this.toString());
     }
 
+    public String toString() {
+    	StringBuffer ret = new StringBuffer();
+    	
+        for (int i = 0; i < rows; i++) {
+        	ret.append("[ ");
+            for (int j = 0; j < cols; j++) {
+            	ret.append(matrix[i][j]).append(" ");
+            }
+        	ret.append("]\n");
+        }
+
+    	return ret.toString();
+    }
     public int rows() {
         return rows;
     }
@@ -44,21 +52,27 @@ public class Matrix {
         return matrix[r][c];
     }
 
-    public Matrix opposed(Matrix m) {
+    public Matrix opposed() {
+        Matrix m = new Matrix(rows, cols);
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                m.setValue(i, j, matrix[i][j]*(-1));
+            }
+        }
+
         return m;
     }
 
     public Matrix transposed(){
-        Matrix m = new Matrix(rows,cols);
-        int[][] m2 = matrix;
+        Matrix m = new Matrix(cols, rows);
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                matrix[i][j]=m2[j][i];
+                m.setValue(j, i, matrix[i][j]);
             }
         }
 
-        m.matrix = this.matrix;
         return m;
     }
 
@@ -106,8 +120,8 @@ public class Matrix {
     public static Matrix m_null(int r, int c){
         Matrix matrix2 = new Matrix(r, c);
 
-        for(int i = 0; i < c; i++){
-            for(int j = 0; j < r; j++){
+        for(int i = 0; i < r; i++){
+            for(int j = 0; j < c; j++){
                 matrix2.matrix[i][j] = 0;
             }
         }
@@ -130,14 +144,13 @@ public class Matrix {
         Matrix matrix2 = new Matrix(r, c);
         Random gerador = new Random();
 
-        for(int i = 0; i < c; i++){
-            for(int j = 0; j < r; j++){
+        for(int i = 0; i < r; i++){
+            for(int j = 0; j < c; j++){
                 matrix2.matrix[i][j] = gerador.nextInt(101);
             }
         }
 
         return matrix2;
-
     }
 
     public static Matrix id(int r, int c){
