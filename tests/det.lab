@@ -1,0 +1,36 @@
+# read the random matrix
+dim = input("Entre com a dimensao: ");
+matrix = [].rand(dim, dim);
+
+# show the matrix
+show(matrix);
+
+# calculate the first part of the determinant
+det1 = 0;
+for c = [].seq(0, dim-1)
+  j = c;
+  tmp = 1;
+  for i = [].seq(0, dim-1)
+    tmp = tmp * matriz.value(i, j);
+    j = (j + 1) % dim;
+  end
+  det1 = det1 + tmp;
+end
+
+# calculate the second part of the determinant
+det2 = 0;
+for c = [].iseq(dim-1, 0)
+  j = c;
+  tmp = 1;
+  for i = [].seq(0, dim-1)
+    tmp = tmp * matriz.value(i, j);
+    j = (j - 1) % dim;
+    if j < 0
+      j = j + dim;
+    end
+  end
+  det2 = det2 + tmp;
+end
+
+# print the determinant
+show(" = " (det1 - det2));

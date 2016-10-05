@@ -1,0 +1,32 @@
+<statements> ::= <statement> { <statement> }
+<statement> ::= <show> | <assign> | <if> | <while> | <for>
+<show> ::= show '(' <text> ')' ';'
+<expr> ::= <term> [ ('+' | '-') <term> ]
+<input> ::= input '(' <text> ')'
+<assign> ::= <var> '=' <expr> ';'
+<term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
+<for> ::= for <var> '=' <value> <statements> end //---> Fazer execute da class ForCommand
+<while> ::= while <boolexpr> <statements> end
+<boolop> ::= '==' | '!=' | '<' | '>' | '<=' | '>='
+<boolexpr> ::= <expr> <boolop> <expr> { ('&' | '|') <boolexpr> }
+<if> ::= if <boolexpr> <statements> [ else <statements> ] end
+<factor> ::= <number> | <input> | <value> | '(' <expr> ')'
+<val> ::= value '(' <expr> ',' <expr> ')'
+<null> ::= null '(' <expr> ',' <expr> ')'
+<fill> ::= fill '(' <expr> ',' <expr> ',' <expr> ')'
+<rand> ::= rand '(' <expr> ',' <expr> ')'
+<id> ::= id '(' <expr> ',' <expr> ')'
+<seq> ::= seq '(' <expr> ',' <expr> ')'
+<iseq> ::= iseq '(' <expr> ',' <expr> ')'
+<opposed> ::= opposed '(' ')'
+<transposed> ::= transposed '(' ')'
+<cols> ::= cols '(' ')'
+<rows> ::= rows '(' ')'
+<size> ::= size '(' ')'
+<sum> ::= sum '(' <expr> ')'
+<mul> ::= mul '(' <expr> ')'
+<text> ::= { <string> | <expr> }
+	<value> ::= (<var> | <gen>)
+	{ '.' (<opposed> | <transposed> | <sum> | <mul>) }
+	[ '.' (<size> | <rows> | <cols> | <val>) ]
+<gen> ::= '[' ']' '.' (<null> | <fill> | <rand> | <id> | <seq> | <iseq>)
