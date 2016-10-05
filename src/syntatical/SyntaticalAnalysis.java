@@ -1,12 +1,40 @@
 package syntatical;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import command.AssignCommand;
+import command.CommandBlock;
+import command.ForCommand;
+import command.IfCommand;
+import command.ShowCommand;
+import command.WhileCommand;
 import lexical.Lexeme;
 import lexical.LexicalAnalysis;
 import lexical.TokenType;
-import model.*;
-import command.*;
-import java.io.IOException;
-import java.util.*;
+import model.BoolOp;
+import model.BoolValue;
+import model.Command;
+import model.CompareBoolValue;
+import model.ConstIntValue;
+import model.ConstStringValue;
+import model.DualBoolExpr;
+import model.DualIntExpr;
+import model.FillMatrixValue;
+import model.IdMatrixValue;
+import model.InputIntValue;
+import model.IntOp;
+import model.MatrixValue;
+import model.NullMatrixValue;
+import model.OpposedMatrixValue;
+import model.RandMatrixValue;
+import model.RelOp;
+import model.SeqMatrixValue;
+import model.StringConcat;
+import model.TransposedMatrixValue;
+import model.Value;
+import model.Variable;
 
 public class SyntaticalAnalysis {
     private LexicalAnalysis la;
@@ -26,6 +54,7 @@ public class SyntaticalAnalysis {
     }
 
     private void matchToken(TokenType type) throws IOException {
+    	System.out.println("(" + current.type + ", \"" + current.token + "\") = " + type);
         if (current.type == type) {
             current = la.nextToken();
         } else {
@@ -90,6 +119,7 @@ public class SyntaticalAnalysis {
         matchToken(TokenType.SHOW);
         matchToken(TokenType.OPEN_PAR);
         Value<?> v = procText();
+        System.out.println("v = " + v);
         matchToken(TokenType.CLOSE_PAR);
         matchToken(TokenType.DOT_COMMA);
 
@@ -153,15 +183,26 @@ public class SyntaticalAnalysis {
 
     //<text> ::= { <string> | <expr> }
     private Value<?> procText() throws IOException {
-        if (current.type == TokenType.STRING) {
-            String s = procStringExpr();
-
-            StringValue sv = new ConstStringValue(s, la.line());
-            return sv;
-        } else {
-            Value<?> v = procExpr();
-            return v;
+    	Value<?> ret = null;
+    	
+    	while (current.type == TokenType.STRING ||
+    		current.type == TokenType.NUMBER ||
+            current.type == TokenType.INPUT ||
+            current.type == TokenType.VAR ||
+            current.type == TokenType.OPEN_BRA ||
+            current.type == TokenType.OPEN_PAR) {
+    	  
+    		Value<?> v = (current.type == TokenType.STRING ?
+    						procString() : procExpr());
+    		if (ret == null)
+    			ret = v;
+    		else {
+    			ret = new StringConcat(ret, v, la.line());
+    		}
+    		
         }
+        
+        return ret;
     }
 
     //<var>
@@ -176,28 +217,25 @@ public class SyntaticalAnalysis {
         return v;
     }
 
-    //<expr> ::= <term> [ ('+' | '-')  ]
+    //<expr> ::= <term> [ ('+' | '-') <term> ]
     private Value<?> procExpr() throws IOException {
-        IntOp op = null;
-        DualIntExpr expr = null;
         Value<?> left = procTerm();
-        while(current.type == TokenType.PLUS || current.type == TokenType.MINS) {
+        if (current.type == TokenType.PLUS || current.type == TokenType.MINS) {
+            IntOp op = null;
             if(current.type == TokenType.PLUS) {
                 matchToken(TokenType.PLUS);
                 op = IntOp.Add;
-                Value<?> right = procTerm();
-
-                expr = new DualIntExpr(op, left, right, la.line());
-                left = expr;
             } else if (current.type == TokenType.MINS) {
                 matchToken(TokenType.MINS);
                 op = IntOp.Sub;
-                Value<?> right = procTerm();
-                expr = new DualIntExpr(op, left, right, la.line());
-                left = expr;
             }
-        }
+
+            Value<?> right = procTerm();
+            DualIntExpr expr = new DualIntExpr(op, left, right, la.line());
+            return expr;
+        } else {
             return left;
+        }
     }
     //<boolexpr> ::= <expr> <boolop> <expr> { ('&' | '|') <boolexpr> }
     private BoolValue procBoolExpr() throws IOException {
@@ -268,9 +306,7 @@ public class SyntaticalAnalysis {
     // <factor> ::= <number> | <input> | <value> | '(' <expr> ')'
     private Value<?> procFactor() throws IOException {
             if (current.type == TokenType.NUMBER) {
-                Integer n = procNumber();
-                ConstIntValue civ = new ConstIntValue(n, la.line());
-                return civ;
+                return procNumber();
             } else if (current.type == TokenType.OPEN_BRA || current.type == TokenType.VAR) {
                 return procValue();
             } else if (current.type == TokenType.INPUT) {
@@ -294,13 +330,16 @@ public class SyntaticalAnalysis {
         
         if(current.type == TokenType.VAR) {
             value = procVar();
-        } else {
+        } else if (current.type == TokenType.OPEN_BRA){
             value = procGen();
+        } else {
+        	// FIXME: Erro!
         }
+        
         while(current.type == TokenType.DOT) {
             matchToken(TokenType.DOT);
             if(current.type == TokenType.OPPOSED) {
-                //value = procOpposed(value);
+                value = procOpposed(value);
             } else if(current.type == TokenType.TRANSPOSED) {
                 value = procTransposed(value);
             } else if(current.type == TokenType.SUM) {
@@ -330,6 +369,7 @@ public class SyntaticalAnalysis {
         matchToken(TokenType.DOT);
 
         if(current.type == TokenType.NULL) {
+        	System.out.println("Got here");
             NullMatrixValue nmv = procNull();
             return nmv;
         } else if(current.type == TokenType.RAND) {
@@ -405,18 +445,13 @@ public class SyntaticalAnalysis {
         NullMatrixValue nmv = new NullMatrixValue(left, right, la.line());
         return nmv;
     }
-    private String procStringExpr() throws IOException {
-        String left = current.token;
+    
+    private ConstStringValue procString() throws IOException {
+        String str = current.token;
         matchToken(TokenType.STRING);
-        while(current.type == TokenType.PLUS) {
-            matchToken(TokenType.PLUS);
-            String right = current.token;
-            StringConcat str = new StringConcat(left, right, la.line());
-            left = str.value();
-            matchToken(TokenType.STRING);
-        }
-        return left;
+        return new ConstStringValue(str, la.line());
     }
+
     // <boolop> ::= '==' | '!=' | '<' | '>' | '<=' | '>='
     private RelOp procBoolOp() throws IOException {
         RelOp op = null;
@@ -442,11 +477,15 @@ public class SyntaticalAnalysis {
         return op;
     }
     // <opposed> ::= opposed '(' ')'
-    private void procOpposed() throws IOException {
+    private MatrixValue procOpposed(Value<?> matrix) throws IOException {
         matchToken(TokenType.OPPOSED);
         matchToken(TokenType.OPEN_PAR);
         matchToken(TokenType.CLOSE_PAR);
+        
+        OpposedMatrixValue omv = new OpposedMatrixValue(matrix, la.line());
+        return omv;
     }
+    
     // <transposed> ::= transposed '(' ')'
     private TransposedMatrixValue procTransposed(Value<?> m) throws IOException {
         matchToken(TokenType.TRANSPOSED);
@@ -488,11 +527,13 @@ public class SyntaticalAnalysis {
         matchToken(TokenType.CLOSE_PAR);
     }
     // <number>
-    private Integer procNumber() throws IOException {
+    private ConstIntValue procNumber() throws IOException {
         String number = current.token;
         matchToken(TokenType.NUMBER);
-        return Integer.parseInt(number);
+        
+        return new ConstIntValue(Integer.parseInt(number), la.line());
     }
+    
     // <input> ::= input '(' <text> ')'
     private InputIntValue procInput() throws IOException {
         matchToken(TokenType.INPUT);
