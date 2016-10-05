@@ -13,7 +13,7 @@ public class TransposedMatrixValue extends MatrixValue{
 
     @Override
     public Matrix value() {
-        Value<?> v = (m instanceof Variable ? (Variable) m.value() : m);
+        Value<?> v = (m instanceof Variable ? ((Variable) m).value() : m);
 
         if (v instanceof MatrixValue){
             Matrix mat = ((MatrixValue) v).value();
