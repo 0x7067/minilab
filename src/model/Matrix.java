@@ -164,23 +164,24 @@ public class Matrix {
     }
 
     public static Matrix seq(int x, int y){
-        if(y > x){
-            Matrix m = new Matrix(0,y-x+1);
+        if(y >= x) {
+            Matrix m = new Matrix(1, y - x + 1);
             int c = x;
-            for (int i = 0; i < y-x; i++) {
+            for (int i = 0; i <= y - x; i++) {
                 m.matrix[0][i] = c++;
             }
             return m;
         }
+
         return null;
     }
 
     public static Matrix iseq(int x, int y){
-        if(y < x){
-            Matrix m = new Matrix(0,x-y+1);
+        if(y <= x){
+            Matrix m = new Matrix(1, (x - y + 1));
             int c = x;
-            for (int i = x; i > x-y+1; i--) {
-                m.matrix[0][i-1] = c--;
+            for (int i = 0; i < x - y + 1; i++) {
+                m.matrix[0][i] = c--;
             }
             return m;
         }

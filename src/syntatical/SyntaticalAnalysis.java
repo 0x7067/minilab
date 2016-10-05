@@ -61,20 +61,27 @@ public class SyntaticalAnalysis {
             if (current.type == TokenType.END_OF_FILE ||
             current.type == TokenType.UNEXPECTED_EOF)
             abortEof();
-            else {
+            else if(current.type == TokenType.INVALID_TOKEN) {
+                abortInvalidToken(current.token);
+            } else {
                 abortUnexpectedToken(current.token);
             }
         }
     }
 
     private void abortUnexpectedToken(String token) {
-        // TODO Auto-generated method stub
-        System.out.println(token);
+        System.out.println(String.format("%02d", la.line()) + ":" + " Lexema não esperado " + "[" + token + "]");
+        System.exit(1);
     }
 
     private void abortEof() {
         // TODO Auto-generated method stub
         System.out.println("EOF");
+    }
+
+    private void abortInvalidToken(String token) {
+        System.out.println(String.format("%02d", la.line()) + ":" + " Lexema inválido " + "[" + token + "]");
+        System.exit(2);
     }
 
     //<statements> ::= <statement> { <statement> }
@@ -369,7 +376,6 @@ public class SyntaticalAnalysis {
         matchToken(TokenType.DOT);
 
         if(current.type == TokenType.NULL) {
-        	System.out.println("Got here");
             NullMatrixValue nmv = procNull();
             return nmv;
         } else if(current.type == TokenType.RAND) {
@@ -382,20 +388,27 @@ public class SyntaticalAnalysis {
             IdMatrixValue imv = procId();
             return imv;
         } else if(current.type == TokenType.SEQ) {
-            SeqMatrixValue smv = procSeq();
+            SeqMatrixValue smv = procSeq(false);
+            return smv;
+        } else if(current.type == TokenType.ISEQ) {
+            SeqMatrixValue smv = procSeq(true);
             return smv;
         }
         return null;
     }
 
-    private SeqMatrixValue procSeq() throws IOException {
-        matchToken(TokenType.SEQ);
+    private SeqMatrixValue procSeq(boolean inverted) throws IOException {
+        if(inverted) {
+            matchToken(TokenType.ISEQ);
+        } else {
+            matchToken(TokenType.SEQ);
+        }
         matchToken(TokenType.OPEN_PAR);
         Value<?> expr1 = procExpr();
         matchToken(TokenType.COMMA);
         Value<?> expr2 = procExpr();
         matchToken(TokenType.CLOSE_PAR);
-        SeqMatrixValue smv = new SeqMatrixValue(expr1, expr2, true, la.line());
+        SeqMatrixValue smv = new SeqMatrixValue(expr1, expr2, inverted, la.line());
         return smv;
     }
 
@@ -543,6 +556,4 @@ public class SyntaticalAnalysis {
         InputIntValue iiv = new InputIntValue(sv, la.line());
         return iiv;
     }
-
-    // FIXME: procs de operação em Matriz
 }

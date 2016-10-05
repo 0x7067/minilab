@@ -65,8 +65,12 @@ public class LexicalAnalysis implements AutoCloseable
                         return lex;
                     }
 
-                    else if(c == ' ' || c == '\t' || c == '\r' || c == '\n')
-                    estado = 1;
+                    else if(c == ' ' || c == '\t' || c == '\r' || c == '\n') {
+                        if(c == '\n') {
+                            line++;
+                        }
+                        estado = 1;
+                    }
 
                     else if(c == '#')
                     estado = 2;

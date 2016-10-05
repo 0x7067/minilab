@@ -1,2 +1,4 @@
-x = [].seq(3, 7);
-show(x);
+x = [].iseq(6, 4);
+if {
+shows(x);;
+}

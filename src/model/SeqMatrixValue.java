@@ -4,34 +4,35 @@ package model;
  * Created by ccc on 03/10/16.
  */
 public class SeqMatrixValue extends MatrixValue {
-    private Value<?> left, right;
-    boolean normal;
+    private Value<?> from, to;
+    private boolean inverted;
 
-    public SeqMatrixValue(Value<?> left, Value<?> right, boolean normal, int line) {
+    public SeqMatrixValue(Value<?> from, Value<?> to, boolean inverted, int line) {
         super(line);
-        this.left = left;
-        this.right = right;
-        this.normal = normal;
+        this.from = from;
+        this.to = to;
+        this.inverted = inverted;
     }
 
     @Override
     public Matrix value() {
-        Value<?> v1 = (left instanceof Variable ? (Variable) left.value() : left);
-        Value<?> v2 = (right instanceof Variable ? (Variable) right.value() : right);
+        Value<?> v1 = (from instanceof Variable ? ((Variable) from).value() : from);
+        Value<?> v2 = (to instanceof Variable ? ((Variable) to).value() : to);
 
-        if (v1 instanceof ConstIntValue && v2 instanceof ConstIntValue){
-            if(normal){
-                int r = ((ConstIntValue)v1).value();
-                int c = ((ConstIntValue)v2).value();
-                return Matrix.seq(r, c);
-            } else{
-                int r = ((ConstIntValue)v1).value();
-                int c = ((ConstIntValue)v2).value();
+        if (v1 instanceof IntValue && v2 instanceof IntValue){
+            //FIXME Operacao invalida
+            if(inverted){
+                int r = ((IntValue)v1).value();
+                int c = ((IntValue)v2).value();
                 return Matrix.iseq(r, c);
+            } else{
+                //FIXME Operacao invalida
+                int r = ((IntValue)v1).value();
+                int c = ((IntValue)v2).value();
+                return Matrix.seq(r, c);
             }
         } else{
-            // TokenType_InVALID
+            throw new UnsupportedOperationException("Tipos inválidos");
         }
-        return null;
     }
 }
