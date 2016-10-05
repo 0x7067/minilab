@@ -21,8 +21,8 @@ public class CommandBlock extends Command{
 
     public void execute(){
         for (int i = 0; i < commands.size(); i++) {
-            System.out.print("Comando: " + i + " ");
             Command c = commands.get(i);
+            System.out.println("Comando: " + i + ": " + c);
             c.execute();
         }
     }
