@@ -13,17 +13,17 @@ public class AssignCommand extends Command {
     }
 
     public void execute() {
-        System.out.println("Operação: Assign");
-        Value<?> v = (val instanceof Variable ? ((Variable) val).value():val );
+        Value<?> v = (val instanceof Variable ? ((Variable) val).value() : val );
 
         if(v instanceof IntValue) {
-            ConstIntValue c = new ConstIntValue( ((IntValue) v).value(), val.line());
+            ConstIntValue c = new ConstIntValue( ((IntValue) v).value(), -1);
             var.setValue(c);
         } else if(v instanceof MatrixValue) {
-            RefMatrixValue ref = new RefMatrixValue( ((MatrixValue) v).value(), val.line());
-            var.setValue(ref);
+            Matrix m = ((MatrixValue) v).value();
+            RefMatrixValue r = new RefMatrixValue(m, -1);
+            var.setValue(r);
         } else {
-            // TT_INVALID_TOKEN
+            throw new UnsupportedOperationException("Tipos invalidos");
         }
     }
 }
