@@ -15,13 +15,21 @@ public class InputIntValue extends IntValue {
 
     @Override
     public Integer value() {
-        Value<?> v = (value instanceof Variable ? (Variable) value.value() : value);
-        if(v instanceof  StringValue) {
+        Value<?> v = (value instanceof Variable ? ((Variable) value).value() : value);
+
+        if(v instanceof IntValue){
+            int n = ((IntValue) v).value();
+            System.out.print(n);
+        } else if(v instanceof StringValue){
             String s = ((StringValue) v).value();
-            System.out.println(s);
+            System.out.print(s);
+        } else if(v instanceof MatrixValue){
+            Matrix m = ((MatrixValue) v).value();
+            System.out.print(m.toString());
         } else {
-            System.out.println("Tipo do input inválido");//FIXME Abortar tipo inválido
+        	throw new UnsupportedOperationException("Tipos invalidos");
         }
+        
         return lerInt.nextInt();
     }
 }
