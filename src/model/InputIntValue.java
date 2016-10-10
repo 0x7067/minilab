@@ -1,13 +1,10 @@
 package model;
-
 import java.util.Scanner;
 
-/**
- * Created by pedroguimaraes on 9/27/16.
- */
 public class InputIntValue extends IntValue {
     private Value<?> value;
     private static Scanner lerInt = new Scanner(System.in);
+
     public InputIntValue(Value<?> stringV, int line) {
         super(line);
         this.value = stringV;
@@ -29,7 +26,7 @@ public class InputIntValue extends IntValue {
         } else {
         	throw new UnsupportedOperationException("Tipos invalidos");
         }
-        
+
         return lerInt.nextInt();
     }
 }
